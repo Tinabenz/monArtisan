@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>MonArtisan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+        }
+        .navbar {
+            backdrop-filter: blur(10px);
+        }
+
+        .hero {
+            min-height: 100vh;
+            background: url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(15,23,42,.9), rgba(15,23,42,.6));
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+
+        .search-card {
+            background: rgba(255,255,255,.95);
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,.2);
+        }
+
+        .artisan-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,.06);
+            transition: .3s;
+            height: 100%;
+        }
+
+        .artisan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 40px rgba(0,0,0,.15);
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #fff;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding-top: 100px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="#">MonArtisan</a>
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">☰</button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto gap-3">
+                <li class="nav-item"><a class="nav-link" href="#">Connexion</a></li>
+                <li class="nav-item"><a class="btn btn-primary text-white" href="#">Inscription</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="container hero-content">
+        <div class="row align-items-center gy-4">
+            <div class="col-lg-6">
+                <h1 class="fw-bold display-5">Trouvez un artisan fiable</h1>
+                <p class="text-white-50">Des professionnels vérifiés partout en Algérie</p>
+                <div class="d-flex gap-3 small text-white-50">
+                    <span>✔ Sécurisé</span>
+                    <span>✔ Rapide</span>
+                    <span>✔ Pro</span>
+                </div>
+            </div>
+
+            <div class="col-lg-5 offset-lg-1">
+                <div class="search-card">
+                    <h4 class="fw-bold mb-3 text-black">Rechercher un artisan</h4>
+
+                    <select class="form-select mb-3" id="job">
+                        <option value="">Tous les métiers</option>
+                        <option>Plombier</option>
+                        <option>Electricien</option>
+                        <option>Menuisier</option>
+                        <option>Carreleur</option>
+                    </select>
+
+                    <select class="form-select mb-3" id="wilaya">
+                        <option value="">Toutes les wilayas</option>
+                        <option>Alger</option>
+                        <option>Oran</option>
+                        <option>Blida</option>
+                        <option>Relizane</option>
+                    </select>
+
+                    <button onclick="rechercher()" class="btn btn-primary w-100">
+                        Rechercher maintenant
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="py-5 bg-light">
+    <div class="container">
+        <h3 class="fw-bold mb-4">Artisans disponibles</h3>
+        <div class="row g-4" id="results"></div>
+    </div>
+</section>
+
+<footer class="py-4 bg-white border-top">
+    <div class="container text-center small text-muted">
+        © {{ date('Y') }} MonArtisan - Tous droits réservés
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const artisans = [
+        { name: "david Benali", job: "Plombier", wilaya: "Alger", note: 4.8, avatar: "https://randomuser.me/api/portraits/men/32.jpg" },
+        { name: "Karim alin", job: "Electricien", wilaya: "Oran", note: 4.6, avatar: "https://randomuser.me/api/portraits/men/44.jpg" },
+        { name: "nasar benzema", job: "Menuisier", wilaya: "Blida", note: 4.9, avatar: "https://randomuser.me/api/portraits/men/85.jpg" },
+        { name: "amir Rahani", job: "Carreleur", wilaya: "Relizane", note: 4.5, avatar: "https://randomuser.me/api/portraits/men/12.jpg" }
+    ];
+
+    function afficher(data) {
+        const results = document.getElementById("results");
+        results.innerHTML = "";
+
+        if(data.length === 0) {
+            results.innerHTML = `<p class="text-center text-muted">Aucun artisan trouvé</p>`;
+            return;
+        }
+
+        data.forEach(a => {
+            results.innerHTML += `
+                <div class="col-md-6 col-lg-3">
+                    <div class="artisan-card text-center">
+                        <img src="${a.avatar}" class="avatar mb-2">
+                        <h6 class="fw-bold">${a.name}</h6>
+                        <span class="badge bg-primary">${a.job}</span>
+                        <p class="small text-muted mt-2">${a.wilaya} • ★ ${a.note}</p>
+                        <a href="#" class="btn btn-outline-primary w-100 mt-2">Voir profil</a>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function rechercher() {
+        const job = document.getElementById("job").value;
+        const wilaya = document.getElementById("wilaya").value;
+
+        const filtres = artisans.filter(a =>
+            (!job || a.job === job) &&
+            (!wilaya || a.wilaya === wilaya)
+        );
+
+        afficher(filtres);
+    }
+
+    afficher(artisans);
+</script>
+
+</body>
+</html>
